@@ -43,8 +43,8 @@ def binarizingImage(image):
     return thresh
 
 def detectContours(binarizedImage):
-    contours, hierarchy = cv2.findContours(binarizedImage, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    return contours,hierarchy
+    _, contours, _ = cv2.findContours(binarizedImage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    return contours
 
 
 if __name__ == "__main__":
@@ -54,6 +54,9 @@ if __name__ == "__main__":
     # referenceEdge = captureImageandVideo(kernelSize,cannyLowerThresh,cannyUpperThresh)
     # temporarily for cropped image
     referenceEdge = cv2.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceImg.png',0)
-    contour,hierarchy = detectContours(referenceEdge)
-    cv2.imshow('frame',referenceEdge)
-    cv2.waitKey()
+    contour = detectContours(referenceEdge)
+    img = cv2.drawContours(referenceEdge, contour, -1, (0,255,0), 3)
+    print(np.shape(img))
+    cv2.imshow('frame',img)
+    if cv2.waitKey(0) & 0xFF == ord('q'):
+        cv2.destroyAllWindows()
