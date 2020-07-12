@@ -9,7 +9,6 @@ def captureImageandVideo(kernelsize = 3,cannyLowerThresh = 50,cannyUpperThresh =
     while(cap.isOpened()):
         # Capture frame-by-frame
         ret, frame = cap.read()
-
         frame = frame[:,160:1119,:]
         # print(np.shape(frame))
         # Our operations on the frame come here
@@ -20,28 +19,41 @@ def captureImageandVideo(kernelsize = 3,cannyLowerThresh = 50,cannyUpperThresh =
         print(kernelsize)
         grayfiltered = cv2.filter2D(gray,-1,kernel)
         # removing background of the video using background substractor
-        # fgmask = fgbg.apply(grayfiltered)
 
-        # Display the resulting frame
+        # Canny edge detector to generate a binary image
         edges = cv2.Canny(grayfiltered,cannyLowerThresh,cannyUpperThresh)
+        # Display the resulting frame
         cv2.imshow('frame',edges)
         if cv2.waitKey(1) & 0xFF == ord('p'):
             print('in p')
-            cv2.imwrite('/Users/dt/Desktop/CodesTemp/ImmunityHealth/referenceImg.jpg', edges)
+            cv2.imwrite('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceImg.jpg', edges)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     # When everything done, release the capture
-    frame = cap.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/referenceImg.jpg',0)
+    frame = cap.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceImg.jpg',0)
     cap.release()
     cv2.destroyAllWindows()
     return frame
 
+def binarizingImage(image):
+    # making sure that the cropped image is in binary
+    frame = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+    # binarizing the image
+    ret, thresh = cv2.threshold(frame, 127, 255, 0)
+    return thresh
+
+def detectContours(binarizedImage):
+    contours, hierarchy = cv2.findContours(binarizedImage, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    return contours,hierarchy
 
 
 if __name__ == "__main__":
     kernelSize = 4
     cannyLowerThresh = 50
     cannyUpperThresh = 70
-    referenceEdge = captureImageandVideo(kernelSize,cannyLowerThresh,cannyUpperThresh)
+    # referenceEdge = captureImageandVideo(kernelSize,cannyLowerThresh,cannyUpperThresh)
     # temporarily for cropped image
-    referenceEdge = cap.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/referenceImg.jpg',0)
+    referenceEdge = cv2.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceImg.png',0)
+    contour,hierarchy = detectContours(referenceEdge)
+    cv2.imshow('frame',referenceEdge)
+    cv2.waitKey()
