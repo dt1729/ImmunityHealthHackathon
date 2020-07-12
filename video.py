@@ -37,14 +37,23 @@ def captureImageandVideo(kernelsize = 3,cannyLowerThresh = 50,cannyUpperThresh =
 
 def binarizingImage(image):
     # making sure that the cropped image is in binary
-    frame = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+    # frame = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
     # binarizing the image
-    ret, thresh = cv2.threshold(frame, 127, 255, 0)
-    return thresh
+    # for i in range(1,np.shape(image)[0]):
+    #     for j in range(1,np.shape(image)[1]):
+    #         if image[i][j] > 200:
+    #             image[i][j] = 255
+    #         else:
+    #             image[i][j] = 0
+    ret, thresh = cv2.threshold(image, 100, 255, cv2.THRESH_BINARY)
+    return ret,thresh
 
-def detectContours(binarizedImage):
-    _, contours, _ = cv2.findContours(binarizedImage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    return contours
+def DetectandDrawContours(binarizedImage,draw = 0):
+    _, contours, _ = cv2.findContours(binarizedImage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    if draw:
+        print('Drawing Contours')
+        cv2.drawContours(binarizedImage, contours, -1, (255,0,0), 1)
+    return binarizedImage,contours
 
 
 if __name__ == "__main__":
@@ -54,9 +63,21 @@ if __name__ == "__main__":
     # referenceEdge = captureImageandVideo(kernelSize,cannyLowerThresh,cannyUpperThresh)
     # temporarily for cropped image
     referenceEdge = cv2.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceImg.png',0)
-    contour = detectContours(referenceEdge)
-    img = cv2.drawContours(referenceEdge, contour, -1, (0,255,0), 3)
-    print(np.shape(img))
-    cv2.imshow('frame',img)
+    _,binarizedImage = binarizingImage(referenceEdge)
+    binarizedImage,contours = DetectandDrawContours(binarizedImage,1)
+    temp = binarizedImage
+    # print(np.shape(contours))
+    # contours = contours[:].reshape(-1,2)
+    # print(np.shape(contours))
+    for i in range(np.shape(contours)[0]):
+        contours[i] = contours[i].reshape(-1,2)
+        for (x, y) in contours[i]:
+            # cv2.circle(temp, (x, y), 1, (255, 0, 0), 1)
+            pass
+    cv2.imshow('frame',binarizedImage)
     if cv2.waitKey(0) & 0xFF == ord('q'):
         cv2.destroyAllWindows()
+    # print(contours)
+    # cv2.imshow('frame',binarizedImage)
+    # if cv2.waitKey(0) & 0xFF == ord('q'):
+    #     cv2.destroyAllWindows()
