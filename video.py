@@ -1,11 +1,28 @@
 import numpy as np
 import cv2
+cap = cv2.VideoCapture(0)
+def referenceBackground():
+    while (cap.isOpened()):
+        ret1, frame1 = cap.read()
+        frame1 = frame1[:,160:1119,:]
+        gray1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
+        print('we have to capture your background first')
+        print('press p to capture background')
+        cv2.imshow('background',gray1)
+        if cv2.waitKey(1) & 0xFF == ord('p'):
+            print('in p')
+            cv2.imwrite('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceBackgroundImg.jpg', gray1)
+            break
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    cv2.destroyAllWindows()
+    gray1 = cv2.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceBackgroundImg.jpg')
+    return gray1
 
 def captureImageandVideo(kernelsize = 3,cannyLowerThresh = 50,cannyUpperThresh = 70):
     cap = cv2.VideoCapture(0)
     # background removal mask from opencv
     fgbg = cv2.createBackgroundSubtractorMOG2()
-
     while(cap.isOpened()):
         # Capture frame-by-frame
         ret, frame = cap.read()
@@ -37,16 +54,25 @@ def captureImageandVideo(kernelsize = 3,cannyLowerThresh = 50,cannyUpperThresh =
 
 def binarizingImage(image):
     # making sure that the cropped image is in binary
-    # frame = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-    # binarizing the image
-    # for i in range(1,np.shape(image)[0]):
-    #     for j in range(1,np.shape(image)[1]):
-    #         if image[i][j] > 200:
-    #             image[i][j] = 255
-    #         else:
-    #             image[i][j] = 0
-    ret, thresh = cv2.threshold(image, 100, 255, cv2.THRESH_BINARY)
+    image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+    ret, thresh = cv2.threshold(image, 150, 200, cv2.THRESH_BINARY)
     return ret,thresh
+
+def backgroundRemoval(backgroundImg):
+    cap = cv2.VideoCapture(0)
+    prevframe = backgroundImg
+    while True:
+        ret,realtimeImage = cap.read()
+        realtimeImage = realtimeImage[:,160:1119,:]
+        realtimeImage = cv2.cvtColor(realtimeImage, cv2.COLOR_BGR2GRAY)
+        humanfromRealTime = realtimeImage - prevframe
+        ret,binarizedHuman = binarizingImage(humanfromRealTime)
+        cv2.imshow('human',binarizedHuman)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+        prevframe = realtimeImage
+    cap.release()
+    cv2.destroyAllWindows()
 
 def DetectandDrawContours(binarizedImage,draw = 0):
     _, contours, _ = cv2.findContours(binarizedImage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -55,20 +81,18 @@ def DetectandDrawContours(binarizedImage,draw = 0):
         cv2.drawContours(binarizedImage, contours, -1, (255,0,0), 1)
     return binarizedImage,contours
 
-
 if __name__ == "__main__":
     kernelSize = 4
     cannyLowerThresh = 50
     cannyUpperThresh = 70
     # referenceEdge = captureImageandVideo(kernelSize,cannyLowerThresh,cannyUpperThresh)
     # temporarily for cropped image
+    referenceBackgroundimg = referenceBackground()
     referenceEdge = cv2.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceImg.png',0)
+    humanImg = backgroundRemoval(referenceBackgroundimg)
     _,binarizedImage = binarizingImage(referenceEdge)
-    binarizedImage,contours = DetectandDrawContours(binarizedImage,1)
+    binarizedImage,contours = DetectandDrawContours(binarizedImage,0)
     temp = binarizedImage
-    # print(np.shape(contours))
-    # contours = contours[:].reshape(-1,2)
-    # print(np.shape(contours))
     for i in range(np.shape(contours)[0]):
         contours[i] = contours[i].reshape(-1,2)
         for (x, y) in contours[i]:
@@ -77,7 +101,3 @@ if __name__ == "__main__":
     cv2.imshow('frame',binarizedImage)
     if cv2.waitKey(0) & 0xFF == ord('q'):
         cv2.destroyAllWindows()
-    # print(contours)
-    # cv2.imshow('frame',binarizedImage)
-    # if cv2.waitKey(0) & 0xFF == ord('q'):
-    #     cv2.destroyAllWindows()
