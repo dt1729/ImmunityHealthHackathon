@@ -46,8 +46,15 @@ References
 import matplotlib.pyplot as plt
 from skimage import data, img_as_float
 from skimage.segmentation import chan_vese
+import cv2
+import numpy as np
 
-image = img_as_float(data.camera())
+
+
+img = cv2.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceBackgroundImg.jpg')
+img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+img = img.tolist()
+image = img_as_float(img)
 # Feel free to play around with the parameters to see how they impact the result
 cv = chan_vese(image, mu=0.25, lambda1=1, lambda2=1, tol=1e-3, max_iter=200,
                dt=0.5, init_level_set="checkerboard", extended_output=True)
