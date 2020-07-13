@@ -16,9 +16,11 @@ def referenceBackground():
         if cv2.waitKey(1) & 0xFF == ord('p'):
             print('in p')
             cv2.imwrite('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceBackgroundImg.jpg', gray1)
+            cv2.destroyAllWindows()
             break
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+    cap.release()
     cv2.destroyAllWindows()
     gray1 = cv2.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceBackgroundImg.jpg')
     return gray1
@@ -79,14 +81,21 @@ def backgroundRemovalNaive(backgroundImg):
     cv2.destroyAllWindows()
 
 def backgroundRemovalChanVese(image):
+    cap = cv2.VideoCapture(0)
     image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
     while True:
         ret,realtimeImage = cap.read()
         realtimeImage = realtimeImage[:,160:1119,:]
         realtimeImage = cv2.cvtColor(realtimeImage, cv2.COLOR_BGR2GRAY)
-        humanfromRealTime = chan_vese(realtimeImage, mu=0.25, lambda1=1, lambda2=1, tol=1e-3, max_iter=200,
+        realtimeImage = realtimeImage.tolist()
+        realtimeImage = img_as_float(realtimeImage)
+        cv = chan_vese(realtimeImage, mu=0.25, lambda1=1, lambda2=1, tol=10, max_iter=20,
                dt=0.5, init_level_set="checkerboard", extended_output=True)
-        cv2.imshow('human',humanfromRealTime)
+               
+        realtimeImage = np.array(cv[0],dtype=np.float32)
+        # print(realtimeImage)
+        realtimeImage = cv2.normalize(realtimeImage, None, alpha = 0, beta = 255, norm_type = cv2.NORM_MINMAX, dtype = cv2.CV_32F)
+        cv2.imshow('human',realtimeImage)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     cap.release()
