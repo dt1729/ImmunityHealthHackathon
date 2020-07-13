@@ -1,5 +1,9 @@
 import numpy as np
 import cv2
+from skimage import data, img_as_float
+from skimage.segmentation import chan_vese
+
+
 cap = cv2.VideoCapture(0)
 def referenceBackground():
     while (cap.isOpened()):
@@ -58,7 +62,7 @@ def binarizingImage(image):
     ret, thresh = cv2.threshold(image, 150, 200, cv2.THRESH_BINARY)
     return ret,thresh
 
-def backgroundRemoval(backgroundImg):
+def backgroundRemovalNaive(backgroundImg):
     cap = cv2.VideoCapture(0)
     prevframe = backgroundImg
     while True:
@@ -74,6 +78,20 @@ def backgroundRemoval(backgroundImg):
     cap.release()
     cv2.destroyAllWindows()
 
+def backgroundRemovalChanVese(image):
+    image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+    while True:
+        ret,realtimeImage = cap.read()
+        realtimeImage = realtimeImage[:,160:1119,:]
+        realtimeImage = cv2.cvtColor(realtimeImage, cv2.COLOR_BGR2GRAY)
+        humanfromRealTime = chan_vese(realtimeImage, mu=0.25, lambda1=1, lambda2=1, tol=1e-3, max_iter=200,
+               dt=0.5, init_level_set="checkerboard", extended_output=True)
+        cv2.imshow('human',humanfromRealTime)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    cap.release()
+    cv2.destroyAllWindows()
+    return cv
 def DetectandDrawContours(binarizedImage,draw = 0):
     _, contours, _ = cv2.findContours(binarizedImage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     if draw:
@@ -89,7 +107,7 @@ if __name__ == "__main__":
     # temporarily for cropped image
     referenceBackgroundimg = referenceBackground()
     referenceEdge = cv2.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceImg.png',0)
-    humanImg = backgroundRemoval(referenceBackgroundimg)
+    humanImg = backgroundRemovalChanVese(referenceBackgroundimg)
     _,binarizedImage = binarizingImage(referenceEdge)
     binarizedImage,contours = DetectandDrawContours(binarizedImage,0)
     temp = binarizedImage
