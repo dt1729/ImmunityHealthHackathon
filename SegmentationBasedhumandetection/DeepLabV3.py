@@ -9,8 +9,9 @@ import sys
 import tarfile
 import tempfile
 import urllib
+import get_dataset_colormap
 # Class to load DeepLab model and run inference.
-class DeepLab(object)
+class DeepLab:
     INPUT_TENSOR = 'ImageTensor:0'
     OUTPUT_TENSOR = 'SemanticPredictions:0'
     INPUT_SIZE = 513
@@ -48,6 +49,9 @@ class DeepLab(object)
 
 _FROZEN_GRAPH = 'frozen_inference_graph'
 #Every time you run the code, a new model will be downloaded. Change the following line to a local path!
+model_dir = '/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/SegmentationBasedhumandetection'
+_TARBALL_NAME = 'deeplab_model.tar.gz'
+download_path = os.path.join(model_dir, _TARBALL_NAME)
 model = DeepLab(download_path)
 cap = cv2.VideoCapture(0)
 final = np.zeros((1, 384, 1026, 3))
