@@ -19,6 +19,7 @@ def referenceBackground():
         print('press p to capture background')
         cv2.imshow('background',frame1RGB)
         if cv2.waitKey(1) & 0xFF == ord('p'):
+            cv2.destroyAllWindows()
             print('in p')
             pil_im = Image.fromarray(frame1RGB)
             # model
@@ -26,14 +27,17 @@ def referenceBackground():
             # color of mask
             seg_image = get_dataset_colormap.label_to_color_image(
                 seg_map, get_dataset_colormap.get_pascal_name()).astype(np.uint8)
+            # cv2.imshow('background',seg_map)
+            print(seg_image)
             cv2.imwrite('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/SegmentationBasedhumandetection/referenceBackgroundSegmented.jpg', seg_image)
             break
     cv2.destroyAllWindows()
-    return seg_image
+    return seg_image,seg_map
 
-def postureCorrection():
-    ref_Seg = cv2.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/SegmentationBasedhumandetection/referenceBackgroundSegmented.jpg')
-    
+# def postureCorrection():
+#     ref_Seg = cv2.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/SegmentationBasedhumandetection/referenceBackgroundSegmented.jpg')
+#     while(cap.isOpened()):
+
 
 
 
@@ -41,7 +45,7 @@ def postureCorrection():
 
 
 if __name__ == "__main__":
-    referenceBackground()
+    seg_img,seg_map =  referenceBackground()
     cap.release()
     
 
