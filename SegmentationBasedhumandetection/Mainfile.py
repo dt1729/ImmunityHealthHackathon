@@ -103,3 +103,12 @@ if __name__ == "__main__":
     postureCorrection(model_time)
     if 'cap' in locals():
         cap.release()
+    
+
+
+
+    
+    
+
+
+
