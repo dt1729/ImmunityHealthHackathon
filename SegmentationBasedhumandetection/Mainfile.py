@@ -3,6 +3,7 @@ import cv2
 import os
 from PIL import Image
 from DeepLabV3 import DeepLab
+import get_dataset_colormap
 
 cap = cv2.VideoCapture(0)
 model_dir = '/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/SegmentationBasedhumandetection'
@@ -19,24 +20,35 @@ def referenceBackground():
         cv2.imshow('background',frame1RGB)
         if cv2.waitKey(1) & 0xFF == ord('p'):
             print('in p')
-            pil_im = Image.fromarray(cv2_im)
+            pil_im = Image.fromarray(frame1RGB)
             # model
             resized_im, seg_map = model.run(pil_im)
             # color of mask
             seg_image = get_dataset_colormap.label_to_color_image(
                 seg_map, get_dataset_colormap.get_pascal_name()).astype(np.uint8)
             cv2.imwrite('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/SegmentationBasedhumandetection/referenceBackgroundSegmented.jpg', seg_image)
-            cv2.destroyAllWindows()
             break
     cv2.destroyAllWindows()
     return seg_image
 
+def postureCorrection():
+    ref_Seg = cv2.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/SegmentationBasedhumandetection/referenceBackgroundSegmented.jpg')
+    
 
+
+
+
+
+
+if __name__ == "__main__":
+    referenceBackground()
+    cap.release()
+    
 
 
 
     
     
-cap.release()
+
 
 
