@@ -3,7 +3,6 @@ import cv2
 from skimage import data, img_as_float
 from skimage.segmentation import chan_vese
 
-
 cap = cv2.VideoCapture(0)
 def referenceBackground():
     while (cap.isOpened()):
@@ -49,11 +48,10 @@ def captureImageandVideo(kernelsize = 3,cannyLowerThresh = 50,cannyUpperThresh =
         cv2.imshow('frame',edges)
         if cv2.waitKey(1) & 0xFF == ord('p'):
             print('in p')
-            cv2.imwrite('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceImg.jpg', edges)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+            cv2.imwrite('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceImg1.jpg', edges)
             break
     # When everything done, release the capture
-    frame = cap.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceImg.jpg',0)
+    frame = cv2.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceImg.jpg',0)
     cap.release()
     cv2.destroyAllWindows()
     return frame
@@ -89,9 +87,8 @@ def backgroundRemovalChanVese(image):
         realtimeImage = cv2.cvtColor(realtimeImage, cv2.COLOR_BGR2GRAY)
         realtimeImage = realtimeImage.tolist()
         realtimeImage = img_as_float(realtimeImage)
-        cv = chan_vese(realtimeImage, mu=0.25, lambda1=1, lambda2=1, tol=10, max_iter=20,
+        cv = chan_vese(realtimeImage, mu=0.25, lambda1=1, lambda2=1, tol=0.01, max_iter=200,
                dt=0.5, init_level_set="checkerboard", extended_output=True)
-               
         realtimeImage = np.array(cv[0],dtype=np.float32)
         # print(realtimeImage)
         realtimeImage = cv2.normalize(realtimeImage, None, alpha = 0, beta = 255, norm_type = cv2.NORM_MINMAX, dtype = cv2.CV_32F)
@@ -101,6 +98,8 @@ def backgroundRemovalChanVese(image):
     cap.release()
     cv2.destroyAllWindows()
     return cv
+
+
 def DetectandDrawContours(binarizedImage,draw = 0):
     _, contours, _ = cv2.findContours(binarizedImage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     if draw:
@@ -112,7 +111,7 @@ if __name__ == "__main__":
     kernelSize = 4
     cannyLowerThresh = 50
     cannyUpperThresh = 70
-    # referenceEdge = captureImageandVideo(kernelSize,cannyLowerThresh,cannyUpperThresh)
+    referenceEdge = captureImageandVideo(kernelSize,cannyLowerThresh,cannyUpperThresh)
     # temporarily for cropped image
     referenceBackgroundimg = referenceBackground()
     referenceEdge = cv2.imread('/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/referenceImg.png',0)

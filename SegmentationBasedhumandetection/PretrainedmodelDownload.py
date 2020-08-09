@@ -30,10 +30,7 @@ def get_config(model_name, model_dir):
 model_dir = '/Users/dt/Desktop/CodesTemp/ImmunityHealth/ImmunityHealthHackathon/SegmentationBasedhumandetection'
 _TARBALL_NAME = 'deeplab_model.tar.gz'
 
-# config = config_widget.result
 
-# #create directory
-# model_dir = config.model_dir or tempfile.mkdtemp()
 tf.gfile.MakeDirs(model_dir)
 
 download_path = os.path.join(model_dir, _TARBALL_NAME)
